@@ -1,0 +1,125 @@
+---
+title: Adding Dynamic Tabs to NetBox
+summary: A step by step guide on how to add dynamic tabs to NetBox using NetBox's plugins 
+date: 2023-02-17
+tags: 
+  - backend
+  - python
+  - netbox
+  - web-development
+---
+
+In order to add a dynamic tab to a NetBox object, whether it's a core object(ex. Device, Device Type) or a user defined object we need a table to act as a map which states which kind of tab corresponds to which object. To do that we can define a Django model like this:
+
+```python
+from django.db import models
+
+class TabMap(models.Model):
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('object_type', 'object_id', 'tab'),
+                                    name='unique_object_type_object_id_tab'),
+        ]
+
+    class Tab(models.TextChoices):
+        CUSTOMTAB = 'CUSTOMTAB', 'Custom Tab'
+
+    class ObjectType(models.TextChoices):
+        DEVICE = 'Device', 'Device'
+
+    object_type = models.CharField(max_length=30, choices=ObjectType.choices)
+    object_id = models.PositiveIntegerField()
+    tab = models.CharField(max_length=30, choices=Tab.choices)
+```
+
+As we can see `TabMap` has three fields which maps a specific `object_id`(ex. 2) which has a specific `object_type`(ex. Device) to a specific `tab_id`.
+
+Then we need to register a tab with it's own template for the object type that we want to have the said tab:
+
+```python
+from dcim.models import Device
+from netbox.views import generic
+from utilities.views import ViewTab, register_model_view
+
+@register_model_view(Device, name='custom_tab')
+class CustomDeviceTab(generic.ObjectView):
+    template_name = 'my_netbox_plugin/custom_device_tab.html'
+    tab = ViewTab(label='Custom Tab',
+                  badge=has_tab(tab=TabMap.Tab.CUSTOMTAB),
+                  weight=10000,
+                  hide_if_empty=True)
+    queryset = Device.objects.all()
+```
+
+In here using `register_model_view` decorator we specified that we want to create a tab for the `Device` object type and with a relative path of `custom_tab`(for example the tab's URL would be something like *my-netbox-instance.net/dcim/devices/2/custom_tab/*).
+
+In `template_name` we specified that we want to use `my_netbox_plugin/custom_device_tab.html` as the template of our tab.
+
+Finally using the `tab` field and NetBox's `ViewTab` class we can give a `label`, `badge`, `weight`(used for ordering the tab between the already present list of tabs, lower values push the tab to left while the higher values push it to the right) and lastly `hide_if_empty`(which hides the tab if it's badge doesn't have a meaningful value).
+
+Also `badge` accepts a simple value like string or a callable with object's id as first argument like for example a function and as you can see in the above code snippet we have provided a function named `has_tab` which itself returns a function to be used by the `badge` field. The definition of the function is below:
+
+```python
+def has_tab(tab):
+
+    def get_badge_value(object):
+        if TabMap.objects.filter(object_type=object.__class__.__name__,
+                                 object_id=object.id,
+                                 tab=tab).exists():
+            return 'Custom Badge'
+
+    return get_badge_value
+```
+
+`has_tab` accepts a `tab`(basically a value of the `Tab` enum we defined in `TabMap` Django model) and returns a function named `get_badge_value` which accepts an object id as `object` and returns a value as tab's badge if the tab has been registered for that object.
+
+Ultimately we define a new view named `register_tab` with the responsibility of registering a tab for a certain object using the provided query strings: `object_type`, `object_id` and `tab`:
+
+```python
+from django.http import HttpResponseRedirect
+
+from . import models
+
+def register_tab(request):
+    object_type = request.GET.get('object_type')
+    object_id = request.GET.get('object_id')
+    tab = request.GET.get('tab')
+
+    if object_type not in models.TabMap.ObjectType:
+        raise Exception(
+            f'Object Type: `{object_type}` is invalid, make sure that you have defined it in `ObjectType` enum'
+        )
+    if tab not in models.TabMap.Tab:
+        raise Exception(
+            f'Tab: `{tab}` is invalid, make sure that you have defined it in `Tab` enum'
+        )
+
+    models.TabMap.objects.get_or_create(object_type=object_type,
+                                        object_id=object_id,
+                                        tab=tab)
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+```
+
+Don't forget to register this view in your *urls.py* file:
+
+```python
+from django.urls import path
+
+from . import views
+
+path('register_tab/', views.register_tab, name='register_tab')
+```
+
+Then in order to register the `Custom Tab` tab for a `Device` with the id of `2` we invoke this view like so:
+
+```html
+<a href="{% url 'plugins:my_netbox_plugin:register_tab' %}?object_type={{ object_type.DEVICE }}&object_id={{ 2 }}&tab={{ tabs.CUSTOMTAB }}">Add Custom Tab</a>
+```
+
+Notice that in here we have passed `Tab` and `ObjectType` enums as extra context values `tabs` and `object_type` respectively.
+
+### Links
+
+[NetBox Documentation](https://docs.netbox.dev/en/stable/)

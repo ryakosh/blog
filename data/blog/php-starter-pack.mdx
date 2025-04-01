@@ -1,0 +1,366 @@
+---
+title: PHP Starter Pack
+summary: This is for programmers who want to get familiar with PHP quickly or people who experienced with it before but forgot some of it's syntax.
+date: 2022-09-26
+tags: 
+  - backend
+  - php
+  - starter-pack
+  - web-development
+---
+
+Programming languages usually have somethings in common, For example they usually have constructs for implementing conditionals, loops, printing something on the screen, exception handling, arrays, strings etc. . This starter pack is going to discuss how to do these common things in PHP and things that are specific just to it.
+
+This is for programmers who want to get familiar with PHP quickly or people who experienced with it before but forgot some of it's syntax.
+
+### Data Types
+
+Below you can learn about the most frequently used data types, Also It's worth reminding you that PHP has falsy values, These values are:
+
+- Empty String: ""
+- Empty Array: \[\]
+- Boolean false: false
+- Zero Int: 0
+- Zero float: 0.0
+- Zero String: "0"
+- Null value: null
+
+```php
+// Integer
+$integer = 2;
+$integer = '2'; // Also you can assign the variable to a completely different type
+
+// Float
+$float = 3.14;
+
+// Boolean
+$boolean = true; // It has two values: `true` and `false`
+
+// String
+$string = 'JoJo'; // You can also use double quotes for strings "JoJo"
+
+// Array
+$array = [1, 2, 3];
+echo $array[1]; // Prints the second element in array: `2`
+$array[0] = 0; // Changes element in index 0 to value 0, $array == [0, 2, 3]
+$arrayWithDifferentTypes = [true, 'two', 3]; // Arrays can contain different value types
+
+// Associative array
+$associativeArray = ['one' => 1, 'two' => 2, 'three' => 3]; // In other languages they're also called maps or dictionaries
+echo $associativeArray['one']; // This echos the value corresponding to key `one`;
+$associativeArray['one'] = 'won'; // This change value of key `one` to value `won`
+```
+
+### Conditionals
+
+As for conditionals, PHP has very similar syntax to other programming languages.
+
+```php
+// Variables in PHP start with `$`
+$isVar = true;
+$canExecute = false;
+
+if($isVar) {
+    /* You can use `echo` to print something on browser page, It can even be HTML */
+    echo '<p>Yes it\'s a variable!</p>';
+} else if($canExecute) {
+    // You can use `''` or `""` for strings
+    echo "No it can\'t execute!";
+} else {
+    echo 'Just your typical else';
+}
+
+// PHP also supports ternary expression
+$isTernary = true;
+$answer = $isTernary ? 'Yes' : 'No';
+```
+
+### Loops
+
+Loops look similar to other languages as well except for `foreach` syntax which is a bit different.
+
+```php
+$count = 0;
+
+// A while loop
+while($count < 3) {
+    // You can insert variables inside strings by using their name, Note that in order for this to work you need to use double quotes("") around string
+    echo "Count is $count";
+    $count++;
+}
+
+// For loop
+for($i = 0; $i < 3; $i++) {
+    echo 'Count is ' . $i;
+}
+
+// Foreach loop using an array
+$array = ['One', 'Two', 'Three'];
+foreach($array as $num) {
+    echo '$num is ' . $num;
+}
+
+$associativeArray = ['One' => 1, 'Two' => 2, 'Three' => 3];
+
+// Foreach loop using an associative array
+// Associative arrays are kinda like dictionaries/maps in other languages
+foreach($associativeArray as $key => $value) {
+    echo "$key is $value";
+}
+```
+
+### Operators
+
+Note that concatenation makes use of `.`(period) operator whereas other languages usually use the plus operator `+`.
+
+```php
+// Mathematical operators
+// Supported operators: `+`, `-`, `*`, `/`, `%`
+$math = 2 + 2;
+// Supported operators: `+=`, `-=`, `*=`, `/=`, `%=`
+$math *= 2;
+// Supported operators: `$math++`, `++$math`, `$math--`, `--$math`
+$math++;
+
+// Comparison operators
+// Supported operators: `===`, `==`, `>`, `<`, `>=`, `<=`, `!==`
+$comparison = 2 === 2;
+$comparison = 2 >= 3;
+
+// Boolean operators
+// Supported operators: `&&`, `||`, `!`
+$boolean = true && false;
+
+// Concatenation
+$concatenation = 'Con' . 'cat' . 'ena' . 'tion';
+
+// Reference operator: &
+// Copy by value
+$array = [1, 2, 3];
+$arrayCopy = $array[1];
+print("\$array before \$arrayCopy change: ");
+print_r($array);
+$arrayCopy = 5;
+print('$array after $arrayCopy change: ');
+print_r($array);
+// Copy by reference
+$arrayReference = &$array[1]; // <---
+print('$array before $arrayReference change: ');
+print_r($array);
+$arrayReference = 5;
+print('$array after $arrayReference change: ');
+print_r($array);
+
+// Casting
+// Supported operators: `(int)`, `(bool)`, `(float)`, `(string)`, `(array)`, `(object)`, `(unset)`
+$casting = (int) 3.14; // 3
+$casting = (bool) 2; // true or 1
+```
+
+### Functions
+
+Functions can be stored in a variable and they can be used as callbacks.
+
+```php
+function multiply($x, $y) {
+    return $x * $y;
+}
+echo '2 * 2 = ' . multiply(2, 2);
+
+// Functions can have default values
+$hello = function($name = 'ryakosh') {
+    echo "Hello $name" . '!';
+};
+$hello();
+
+// You can pass functions as arguments, They're also called callbacks
+function multiplyThenDevideByTwo($multiplyFunc, $x, $y) {
+    return ($multiplyFunc($x, $y)) / 2;
+}
+echo multiplyThenDevideByTwo(multiply, 2, 2);
+```
+
+### Object Oriented Programming
+
+```php
+class Animal {
+    // This is an instance property, It can be accessed using `$this->$name` inside of Animal class or it's subclasses
+    public $name;
+
+    // Constructor
+    public function __construct($name) {
+        $this->name = $name;
+    }
+
+    public function eat($food) {
+        return "($food) Naam Naam";
+    }
+
+    // By default methods without an access modifier are considered `public`
+    function live($food) {
+        echo $this->eat($food) . ' ' . $this->poop() . ' ' . $this->sleep();
+    }
+    
+    protected function sleep() {
+        return 'Zzzz';
+    }
+
+    private function poop() {
+        return '💩';
+    }
+}
+
+// Inheritance using PHP
+class Dog extends Animal {
+    protected function sleep() {
+        return 'Zzzz(Shhhh! ' . $this->name . ' is sleeping)';
+    }
+}
+
+// The `new` keyword is used for object creation from a class
+$dogObject = new Dog('Shiba');
+// Object properties can get access using `->`
+$dogObject->live('Burger');
+// New properties can be added to objects or you can change existing ones
+$dogObject->color = 'black';
+
+
+if($dogObject instanceof Dog) {
+    echo 'Yes, $dogObject is an instace of Dog class';
+}
+```
+
+### Exception Handling
+
+```php
+function isEaNasir($name) {
+    if($name === 'Ea-Nasir') {
+        // You can throw exceptions in PHP
+        throw new Exception('Do not buy copper ingots from Ea-Nasir');
+    }
+}
+
+try {
+    isEaNasir('Ea-Nasir'); // Exception will be thrown
+    echo 'If you see this message your safe from shitty copper ingots';
+} catch(Exception $e) {
+    echo $e->getMessage();
+}
+```
+
+### Standard Library
+
+PHP has a somewhat large set of builtin functions, though in this starter pack I'm only going to bring up the most commonly used ones.
+
+```php
+// -------------------- String --------------------
+$string = 'The quick brown fox';
+
+print_r(explode(' ', $string)); // Spliting
+echo strlen($string); // 19
+echo trim($string, "Thefox"); // quick brown
+echo chr(65);
+echo ord('A');
+echo strcmp('Equal?', $string); // 0 = equal, -1 = string 1 is less than string 2, +1 = string 1 is more than string 2
+echo strrev($string);
+echo strtolower($string);
+echo strtoupper($string);
+echo substr($string, 4, 5); // quick
+printf('%s jumps over the lazy dog', $string);
+echo '<br />';
+// -------------------- String End --------------------
+
+// -------------------- Array --------------------
+$array = array(1, 2, 3);
+
+echo count($array);
+print_r(array_fill(0, 3, 0)); // From index 0 till index 2(Second argument is length not index) fill the array with `0`s
+echo array_pop($array);
+echo array_push($array, 3, 4);
+echo array_rand($array); // Return a random element from array
+print_r(array_reverse($array));
+echo array_search(3, $array); // Search for an element and return it's corresponding key
+echo array_sum($array);
+shuffle($array);
+print_r($array);
+echo in_array(2, $array);
+
+function isDivisible2($element) {
+    return ($element % 2) === 0;
+}
+print_r(array_filter($array, 'isDivisible2')); // Note that `isDivisible2` callback is passed as a string
+
+function multiply2($element) {
+    return $element * 2;
+}
+print_r(array_map('multiply2', $array)); // Note that `multiply2` callback is passed as a string
+echo '<br />';
+// -------------------- Array End --------------------
+
+// -------------------- Utility --------------------
+echo empty($variable); // Is variable empty/null?
+
+$variable = '3.14';
+echo floatval($variable); // Convert to float
+echo gettype($variable); // Get the type's name as string
+echo intval($variable); // Convert to int
+echo is_string($variable);
+echo is_int($variable);
+echo is_array($variable);
+echo is_float($varialbe);
+echo is_bool($variable);
+echo is_object($variable);
+echo is_null($variable);
+echo isset($variable); // Is variable set and not null?
+echo strval(3.14); // Convert to string
+echo var_dump($variable); // Get information about the variable
+echo '<br />';
+// -------------------- Utility End --------------------
+
+// -------------------- Date --------------------
+$currentDataTime = date_create(); // Current date and time as `Datetime`
+$currentDateTimeTimestamp = time(); // Current time as timestamp
+$dateTime = date_create('2022-12-30'); // Create `Datetime` using a string value
+$timestamp = mktime(0, 0, 0, 12, 30, 2022); // Create a timestamp using provided date and time
+$formatedCurrentDateTime = date('h:i:s Y-m-d'); // Get the current date and time and then format it according to the format string provided
+echo date_timestamp_get($dateTime);
+echo '<br />';
+// -------------------- Date End --------------------
+
+// -------------------- Regular Expression --------------------
+$regex = '/ar.+/i'; // In PHP regular expressions are strings with delimiters(Here `/` is used as delimiter) and optional modifiers passed after the closing delimiter
+echo preg_match($regex, 'arya'); // If there is a match it returns 1 otherwise 0
+echo preg_match_all($regex, 'arya aryan armita'); // Returns the number of times regex has been found in the provided string
+echo preg_replace($regex, 'arya', 'aryan'); // Replace every occurrence of the regex with the string provided
+// -------------------- Regular Expression End --------------------
+
+// -------------------- File --------------------
+include('path/to/file.php'); // Copy file.php PHP file contents in here and show a warning if it doesn't exist
+require('path/to/file.php'); // Same as above but throws an error if file.php doesn't exist
+echo readfile('path/to/file.txt'); // Return the entire contents of the file.txt as string
+$file = fopen('path/to/file.txt', 'r');
+echo fgets($file); // Read a line from the file
+echo filesize('path/to/file.txt'); // Return file size in bytes
+echo fread($read, 12); // Read the maximum 12 chars from the file
+fclose($file);
+$file = fopen('path/to/file.txt', 'a');
+fwrite($file, 'Text to write');
+// -------------------- File End --------------------
+```
+
+### Links
+
+[PHP Website](https://www.php.net/)
+
+[Documentation](https://www.php.net/manual/en/)
+
+[Laravel / Web Framework](https://laravel.com/)
+
+[Awesome PHP / Curated List of Awesome Libraries](https://github.com/ziadoz/awesome-php)
+
+Wordpress / CMS
+
+[Composer / Dependency Manager](https://getcomposer.org/)
+
+[Packagist / Package Repository](https://packagist.org/)
+

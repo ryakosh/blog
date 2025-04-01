@@ -1,0 +1,38 @@
+---
+title: Python Tricks That I Don't Want to Forget
+summary: Log of python tricks that I didn't thought where possible in the language
+date: 2023-02-19
+tags: 
+  - backend
+  - python
+  - web-development
+---
+
+### Python ternary operator:
+
+Well apparently this feature was available in python for a somewhat long time, It's weird that i didn't learn about it until recently:
+
+
+```python
+condition = (2 * 2) == 4
+return_this = '2 multiplied by 2 is 4'
+return_this_instead = '2 multiplied by 2 is not 4!'
+
+return_this if condition else return_this_instead
+```
+
+### Python functions can return a function:
+
+Yeahhh... I believe I should've known this by now...:
+
+
+```python
+def gimme_string(str):
+   def repeat_the_string_times(n):
+      return str * n
+   
+   return repeat_the_string_times
+
+repeat_the_string_times = gimme_string('HA')
+print(repeat_the_string_times(10)) # This returns 'HAHAHAHAHAHAHAHAHAHA'
+
