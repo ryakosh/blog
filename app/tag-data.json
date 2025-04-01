@@ -1,8 +1,8 @@
 {
   "backend": 3,
   "python": 2,
-  "netbox": 1,
   "web-development": 3,
+  "netbox": 1,
   "php": 1,
   "starter-pack": 1
 }
